@@ -1,0 +1,160 @@
+﻿@model SessionViewModel
+@{
+    ViewData["Title"] = "Session Details";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+
+                <div class="card-header text-white text-center py-4 @(Model.Status == "Ongoing" ? "bg-success" : Model.Status == "Upcoming" ? "bg-primary" : "bg-secondary")">
+                    <i class="bi bi-calendar-event display-4 mb-3"></i>
+                    <h2 class="mb-2">@Model.CategoryName</h2>
+                    <span class="badge bg-light text-dark fs-6">@Model.Status</span>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <!-- Description -->
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h6 class="text-primary-color mb-2">
+                            <i class="bi bi-file-text me-2"></i>Description
+                        </h6>
+                        <p class="mb-0">@Model.Description</p>
+                    </div>
+
+                    <!-- Session Details -->
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="detail-box p-3 border rounded">
+                                <small class="text-muted">Trainer</small>
+                                <strong>@Model.TrainerName</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-box p-3 border rounded">
+                                <small class="text-muted">Capacity</small>
+                                <strong>@Model.AvailableSlots / @Model.Capacity spots</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-box p-3 border rounded">
+                                <small class="text-muted">Start Time</small>
+                                <strong>@Model.StartDate</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="detail-box p-3 border rounded">
+                                <small class="text-muted">End Time</small>
+                                <strong>@Model.EndDate</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="detail-box p-3 border rounded bg-light">
+                                <small class="text-muted">Duration</small>
+                                <strong>
+                                    @Model.Duration.Hours Hours @Model.Duration.Minutes Minutes
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <div class="mt-4">
+                        <h5 class="mb-3">Book Member Into Session</h5>
+
+                        <form asp-action="BookSession" method="post" class="row g-3 align-items-end">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="SessionId" value="@Model.Id" />
+
+                            <div class="col-md-8">
+                                <label class="form-label">Select Member</label>
+                                <select name="MemberId" class="form-select" asp-items="ViewBag.Members">
+                                    <option value="">-- Select Member --</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="bi bi-calendar-plus me-2"></i>
+                                    Book Session
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Attendance Tracking -->
+                    <div class="mt-5">
+                        <h5 class="mb-3">Attendance</h5>
+
+                        @if (Model.Members != null && Model.Members.Any())
+                        {
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Member Name</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var member in Model.Members)
+                                    {
+                                        <tr>
+                                            <td>@member.MemberName</td>
+                                            <td>
+                                                @if (member.IsAttended)
+                                                {
+                                                    <span class="badge bg-success">Present</span>
+                                                }
+                                                else if (Model.Status == "Completed")
+                                                {
+                                                    <span class="badge bg-danger">Absent</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!member.IsAttended && Model.Status == "Ongoing")
+                                                {
+                                                    <form asp-action="MarkAttendance" method="post">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="sessionId" value="@Model.Id" />
+                                                        <input type="hidden" name="memberId" value="@member.MemberId" />
+                                                        <button type="submit" class="btn btn-sm btn-primary">
+                                                            Mark
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <p>No members booked for this session yet.</p>
+                        }
+                    </div>
+
+                </div>
+
+                <div class="card-footer text-center">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        Back to List
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,463 @@
+﻿@model GymManagementSystemBLL.ViewModels.CalculatorViewModels.CalorieCalculatorInputViewModel
+
+@{
+    ViewData["Title"] = "TDEE Calculator";
+}
+
+<div class="dark-calculator-page py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <!-- HEADER -->
+                <div class="text-center mb-4">
+                    <h1 class="calc-title">TDEE Calculator</h1>
+                    <p class="calc-subtitle">Track your calories like a pro 💪</p>
+                </div>
+
+                <!-- CARD -->
+                <div class="card calculator-card shadow-lg border-0">
+                    <div class="card-body p-4 p-md-5">
+
+                        <form id="tdeeForm" asp-action="Calculate" method="post">
+                            <input asp-for="MemberId" type="hidden" />
+
+                            <div class="row g-4">
+
+                                <!-- Gender -->
+                                <div class="col-md-6">
+                                    <label class="form-label calc-label">Gender</label>
+
+                                    <div class="gender-switch">
+                                        <input type="radio" class="btn-check" asp-for="Gender" value="Male" id="male">
+                                        <label class="gender-btn" for="male">♂ Male</label>
+
+                                        <input type="radio" class="btn-check" asp-for="Gender" value="Female" id="female">
+                                        <label class="gender-btn" for="female">♀ Female</label>
+                                    </div>
+                                </div>
+
+                                <!-- Age -->
+                                <div class="col-md-6">
+                                    <label asp-for="Age" class="form-label calc-label">Age</label>
+                                    <input asp-for="Age" type="number" class="form-control calc-input" placeholder="25">
+                                </div>
+
+                                <!-- Height -->
+                                <div class="col-md-6">
+                                    <label asp-for="HeightCm" class="form-label calc-label">Height (cm)</label>
+                                    <input asp-for="HeightCm" type="number" class="form-control calc-input" placeholder="175">
+                                </div>
+
+                                <!-- Weight -->
+                                <div class="col-md-6">
+                                    <label asp-for="WeightKg" class="form-label calc-label">Weight (kg)</label>
+                                    <input asp-for="WeightKg" type="number" class="form-control calc-input" placeholder="70">
+                                </div>
+
+                                <!-- Body Fat -->
+                                <div class="col-md-6">
+                                    <label asp-for="BodyFatPercentage" class="form-label calc-label">
+                                        Body Fat % <span class="optional">(optional)</span>
+                                    </label>
+                                    <input asp-for="BodyFatPercentage" type="number" class="form-control calc-input">
+                                </div>
+
+                                <!-- Activity -->
+                                <div class="col-md-6">
+                                    <label asp-for="ActivityLevel" class="form-label calc-label">Activity Level</label>
+                                    <select asp-for="ActivityLevel" class="form-select calc-input">
+                                        <option value="Sedentary">Sedentary</option>
+                                        <option value="LightlyActive">Light</option>
+                                        <option value="ModeratelyActive">Moderate</option>
+                                        <option value="VeryActive">Heavy</option>
+                                        <option value="SuperActive">Athlete</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <!-- BUTTON -->
+                            <div class="d-grid mt-4">
+                                <button id="calculateBtn" type="submit" class="btn calc-btn">
+                                    <span class="btn-text">Calculate My TDEE ⚡</span>
+                                    <span class="btn-spinner d-none"></span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- LOADING STATE -->
+                        <div id="loadingState" class="mt-4 d-none">
+                            <div class="loading-glow mb-3">
+                                <div class="spinner-ring"></div>
+                                <p class="loading-text mb-0">Calculating your calories...</p>
+                            </div>
+
+                            <div class="skeleton-card">
+                                <div class="skeleton skeleton-line skeleton-title"></div>
+                                <div class="skeleton skeleton-line skeleton-subtitle"></div>
+
+                                <div class="row g-3 mt-1">
+                                    <div class="col-md-4">
+                                        <div class="skeleton skeleton-box"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="skeleton skeleton-box"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="skeleton skeleton-box"></div>
+                                    </div>
+                                </div>
+
+                                <div class="skeleton skeleton-line skeleton-wide mt-4"></div>
+                                <div class="skeleton skeleton-line skeleton-wide"></div>
+                                <div class="skeleton skeleton-line skeleton-wide"></div>
+                            </div>
+                        </div>
+
+                        <!-- RESULT -->
+                        <div id="resultContainer" class="mt-4"></div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("tdeeForm");
+            const resultContainer = document.getElementById("resultContainer");
+            const loadingState = document.getElementById("loadingState");
+            const calculateBtn = document.getElementById("calculateBtn");
+            const btnText = calculateBtn.querySelector(".btn-text");
+            const btnSpinner = calculateBtn.querySelector(".btn-spinner");
+
+            if (!form) return;
+
+            function playSuccessSound() {
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(660, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08);
+
+                    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.18);
+                } catch (e) {
+                    console.log("Audio blocked or unsupported");
+                }
+            }
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                // show loading
+                resultContainer.innerHTML = "";
+                loadingState.classList.remove("d-none");
+                calculateBtn.disabled = true;
+                btnText.classList.add("d-none");
+                btnSpinner.classList.remove("d-none");
+                form.classList.add("form-busy");
+
+                fetch("/CalorieCalculator/Calculate", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.text())
+                .then(html => {
+                    setTimeout(() => {
+                        loadingState.classList.add("d-none");
+                        resultContainer.innerHTML = `<div class="result-fade-in">${html}</div>`;
+
+                        calculateBtn.disabled = false;
+                        btnText.classList.remove("d-none");
+                        btnSpinner.classList.add("d-none");
+                        form.classList.remove("form-busy");
+
+                        if (typeof initTdeeResult === "function") {
+                            initTdeeResult();
+                        }
+
+                        playSuccessSound();
+
+                        const resultCard = document.getElementById("resultCard");
+                        if (resultCard) {
+                            resultCard.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start"
+                            });
+                        }
+                    }, 900); // smooth fake loading
+                })
+                .catch(err => {
+                    loadingState.classList.add("d-none");
+                    calculateBtn.disabled = false;
+                    btnText.classList.remove("d-none");
+                    btnSpinner.classList.add("d-none");
+                    form.classList.remove("form-busy");
+
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-danger rounded-4 mt-3">
+                            Something went wrong while calculating. Please try again.
+                        </div>
+                    `;
+                    console.error(err);
+                });
+            });
+        });
+    </script>
+}
+
+<style>
+    .dark-calculator-page {
+        background: linear-gradient(135deg, #0a0a2a, #12124a);
+        min-height: 100vh;
+    }
+
+    /* header */
+    .calc-title {
+        font-size: 40px;
+        font-weight: 900;
+        color: #fff;
+    }
+
+    .calc-subtitle {
+        color: #aab0ff;
+        font-size: 17px;
+    }
+
+    /* card */
+    .calculator-card {
+        background: rgba(20, 20, 60, 0.90);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        color: white;
+        overflow: hidden;
+    }
+
+    /* labels */
+    .calc-label {
+        font-weight: 600;
+        color: #dcdcff;
+    }
+
+    /* inputs */
+    .calc-input {
+        background: #1a1a4a;
+        border: 1px solid #2d2d80;
+        color: white;
+        border-radius: 12px;
+        height: 50px;
+        transition: .2s ease;
+    }
+
+        .calc-input:focus {
+            background: #1a1a4a;
+            color: white;
+            border-color: #4a6bff;
+            box-shadow: 0 0 0 3px rgba(74,107,255,0.18);
+        }
+
+        .calc-input::placeholder {
+            color: #9ca3d3;
+        }
+
+    .form-select.calc-input {
+        color: white;
+    }
+
+    /* gender */
+    .gender-switch {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .gender-btn {
+        text-align: center;
+        padding: 12px;
+        border-radius: 12px;
+        background: #1a1a4a;
+        border: 1px solid #2d2d80;
+        cursor: pointer;
+        transition: 0.2s ease;
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .btn-check:checked + .gender-btn {
+        background: linear-gradient(135deg, #2f5cff, #6b3bff);
+        border-color: transparent;
+        transform: translateY(-1px);
+    }
+
+    /* submit btn */
+    .calc-btn {
+        height: 56px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #2f5cff, #6b3bff);
+        border: none;
+        font-weight: 800;
+        color: white;
+        transition: .2s ease;
+        position: relative;
+    }
+
+        .calc-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .calc-btn:disabled {
+            opacity: .85;
+            cursor: not-allowed;
+        }
+
+    /* spinner inside button */
+    .btn-spinner {
+        width: 22px;
+        height: 22px;
+        border: 3px solid rgba(255,255,255,.25);
+        border-top: 3px solid #fff;
+        border-radius: 50%;
+        display: inline-block;
+        animation: spin .7s linear infinite;
+        margin: 0 auto;
+    }
+
+    /* loading block */
+    .loading-glow {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: rgba(34, 34, 89, 0.75);
+        border: 1px solid rgba(91, 110, 255, 0.22);
+        padding: 16px 18px;
+        border-radius: 18px;
+    }
+
+    .spinner-ring {
+        width: 26px;
+        height: 26px;
+        border: 3px solid rgba(255,255,255,.2);
+        border-top: 3px solid #5b6eff;
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+    }
+
+    .loading-text {
+        color: #dbe0ff;
+        font-weight: 600;
+    }
+
+    /* skeleton */
+    .skeleton-card {
+        margin-top: 18px;
+        background: rgba(24, 24, 70, 0.75);
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid rgba(91, 110, 255, 0.18);
+    }
+
+    .skeleton {
+        position: relative;
+        overflow: hidden;
+        background: #23235a;
+        border-radius: 12px;
+    }
+
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -150px;
+            height: 100%;
+            width: 150px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+            animation: shimmer 1.2s infinite;
+        }
+
+    .skeleton-line {
+        height: 16px;
+        margin-bottom: 12px;
+    }
+
+    .skeleton-title {
+        width: 40%;
+        height: 24px;
+    }
+
+    .skeleton-subtitle {
+        width: 28%;
+    }
+
+    .skeleton-box {
+        height: 90px;
+    }
+
+    .skeleton-wide {
+        width: 100%;
+    }
+
+    /* result animation */
+    .result-fade-in {
+        animation: fadeInUp .55s ease;
+    }
+
+    /* optional text */
+    .optional {
+        font-size: 12px;
+        color: #8d93c9;
+    }
+
+    /* animations */
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @@keyframes shimmer {
+        100% {
+            left: 100%;
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(24px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .calc-title {
+            font-size: 32px;
+        }
+
+        .calc-subtitle {
+            font-size: 15px;
+        }
+    }
+</style>

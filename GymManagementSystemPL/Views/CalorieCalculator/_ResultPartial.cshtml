@@ -1,0 +1,517 @@
+﻿@model GymManagementSystemBLL.ViewModels.CalculatorViewModels.CalorieCalculatorResultViewModel
+
+<div class="tdee-dark-result" id="resultCard">
+
+    <!-- Hero Card -->
+    <div class="hero-result-card mb-4">
+        <p class="hero-overline mb-2">YOUR STATS</p>
+        <h2 class="hero-title">Your Maintenance Calories</h2>
+        <div class="hero-number">@Model.MaintenanceCalories.ToString("N0")</div>
+        <div class="hero-subtitle">calories per day</div>
+        <div class="hero-weekly">@((Model.MaintenanceCalories * 7).ToString("N0")) calories per week</div>
+
+        <div class="row g-3 mt-4">
+            <div class="col-md-4">
+                <div class="hero-mini-card">
+                    <span class="mini-label">BMR</span>
+                    <strong class="mini-value">@Model.BMR.ToString("N0")</strong>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="hero-mini-card">
+                    <span class="mini-label">BMI</span>
+                    <strong class="mini-value">@Model.BMI.ToString("0.0")</strong>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="hero-mini-card">
+                    <span class="mini-label">Category</span>
+                    <strong class="mini-value">@Model.BMICategory</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Levels -->
+    <div class="card dark-card border-0 shadow-lg mb-4">
+        <div class="card-body p-4">
+            <h4 class="dark-section-title mb-4">Calories by Activity Level</h4>
+
+            @foreach (var level in Model.AllActivityLevels)
+            {
+                var isSelected = Math.Abs(Model.TDEE - level.Value) < 1;
+                var maxValue = Model.AllActivityLevels.Values.Max();
+                var percent = maxValue == 0 ? 0 : (level.Value / maxValue) * 100;
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold @(isSelected ? "text-primary-custom" : "text-light-soft")">@level.Key</span>
+                        <span class="@(isSelected ? "fw-bold text-primary-custom" : "text-light-muted")">
+                            @level.Value.ToString("N0") kcal/day
+                        </span>
+                    </div>
+
+                    <div class="progress dark-progress">
+                        <div class="progress-bar @(isSelected ? "active-progress" : "inactive-progress")"
+                             role="progressbar"
+                             style="width:@percent.ToString("0.##")%">
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Plans + Chart -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="card dark-card border-0 shadow-lg h-100">
+                <div class="card-body p-4">
+
+                    <ul class="nav nav-pills dark-tabs mb-4" id="calorieTabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#maintain" type="button">
+                                Maintenance
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#cut" type="button">
+                                Cutting
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#bulk" type="button">
+                                Bulking
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+
+                        <!-- Maintenance -->
+                        <div class="tab-pane fade show active" id="maintain">
+                            <div class="plan-header mb-4">
+                                <h3>@Model.MaintenanceCalories.ToString("N0") Calories/day</h3>
+                                <p>Stay at your current weight</p>
+                            </div>
+
+                            <div class="macro-grid">
+                                <div class="macro-box">
+                                    <span>Protein</span>
+                                    <strong>@Model.MaintenanceMacros.ProteinGrams g</strong>
+                                </div>
+                                <div class="macro-box">
+                                    <span>Fats</span>
+                                    <strong>@Model.MaintenanceMacros.FatsGrams g</strong>
+                                </div>
+                                <div class="macro-box">
+                                    <span>Carbs</span>
+                                    <strong>@Model.MaintenanceMacros.CarbsGrams g</strong>
+                                </div>
+                            </div>
+
+                            <div class="ratio-pill mt-3">Ratio: @Model.MaintenanceMacros.Ratio</div>
+                        </div>
+
+                        <!-- Cutting -->
+                        <div class="tab-pane fade" id="cut">
+                            <div class="plan-header mb-4">
+                                <h3>@Model.CuttingCalories.ToString("N0") Calories/day</h3>
+                                <p>Fat loss target</p>
+                            </div>
+
+                            <div class="macro-grid">
+                                <div class="macro-box">
+                                    <span>Protein</span>
+                                    <strong>@Model.CuttingMacros.ProteinGrams g</strong>
+                                </div>
+                                <div class="macro-box">
+                                    <span>Fats</span>
+                                    <strong>@Model.CuttingMacros.FatsGrams g</strong>
+                                </div>
+                                <div class="macro-box">
+                                    <span>Carbs</span>
+                                    <strong>@Model.CuttingMacros.CarbsGrams g</strong>
+                                </div>
+                            </div>
+
+                            <div class="ratio-pill mt-3">Ratio: @Model.CuttingMacros.Ratio</div>
+                        </div>
+
+                        <!-- Bulking -->
+                        <div class="tab-pane fade" id="bulk">
+                            <div class="plan-header mb-4">
+                                <h3>@Model.BulkingCalories.ToString("N0") Calories/day</h3>
+                                <p>Muscle gain target</p>
+                            </div>
+
+                            <div class="macro-grid">
+                                <div class="macro-box">
+                                    <span>Protein</span>
+                                    <strong>@Model.BulkingMacros.ProteinGrams g</strong>
+                                </div>
+                                <div class="macro-box">
+                                    <span>Fats</span>
+                                    <strong>@Model.BulkingMacros.FatsGrams g</strong>
+                                </div>
+                                <div class="macro-box">
+                                    <span>Carbs</span>
+                                    <strong>@Model.BulkingMacros.CarbsGrams g</strong>
+                                </div>
+                            </div>
+
+                            <div class="ratio-pill mt-3">Ratio: @Model.BulkingMacros.Ratio</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="col-lg-5">
+            <div class="card dark-card border-0 shadow-lg h-100">
+                <div class="card-body p-4 text-center">
+                    <h4 class="dark-section-title mb-4">Macros Breakdown</h4>
+
+                    <div class="chart-wrapper">
+                        <canvas id="macroChart"
+                                width="320"
+                                height="320"
+                                data-maintenance-protein="@Model.MaintenanceMacros.ProteinGrams"
+                                data-maintenance-fats="@Model.MaintenanceMacros.FatsGrams"
+                                data-maintenance-carbs="@Model.MaintenanceMacros.CarbsGrams"
+                                data-cutting-protein="@Model.CuttingMacros.ProteinGrams"
+                                data-cutting-fats="@Model.CuttingMacros.FatsGrams"
+                                data-cutting-carbs="@Model.CuttingMacros.CarbsGrams"
+                                data-bulking-protein="@Model.BulkingMacros.ProteinGrams"
+                                data-bulking-fats="@Model.BulkingMacros.FatsGrams"
+                                data-bulking-carbs="@Model.BulkingMacros.CarbsGrams">
+                        </canvas>
+                    </div>
+
+                    <p class="chart-title mt-3 mb-0" id="chartPlanTitle">Maintenance macros</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ideal Weight + BMI -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card dark-card border-0 shadow-lg h-100">
+                <div class="card-body p-4">
+                    <h4 class="dark-section-title mb-3">Ideal Weight</h4>
+
+                    <p class="ideal-range">
+                        Estimated range:
+                        <strong>@Model.IdealWeightMin.ToString("0.#") - @Model.IdealWeightMax.ToString("0.#") kg</strong>
+                    </p>
+
+                    <div class="formula-list">
+                        @foreach (var formula in Model.IdealWeightFormulas)
+                        {
+                            <div class="formula-item">
+                                <span>@formula.FormulaName</span>
+                                <strong>@formula.Weight.ToString("0.#") kg</strong>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card dark-card border-0 shadow-lg h-100">
+                <div class="card-body p-4">
+                    <h4 class="dark-section-title mb-3">BMI Score: @Model.BMI.ToString("0.0")</h4>
+
+                    <p class="bmi-description">
+                        Your BMI is <strong>@Model.BMI.ToString("0.0")</strong>,
+                        which means you are classified as <strong>@Model.BMICategory</strong>.
+                    </p>
+
+                    <div class="bmi-scale mt-4">
+                        <div class="bmi-item @(Model.BMI < 18.5 ? "active-bmi" : "")">
+                            <span>18.5 or less</span>
+                            <strong>Underweight</strong>
+                        </div>
+                        <div class="bmi-item @(Model.BMI >= 18.5 && Model.BMI < 25 ? "active-bmi bmi-good" : "")">
+                            <span>18.5 – 24.99</span>
+                            <strong>Normal Weight</strong>
+                        </div>
+                        <div class="bmi-item @(Model.BMI >= 25 && Model.BMI < 30 ? "active-bmi bmi-warn" : "")">
+                            <span>25 – 29.99</span>
+                            <strong>Overweight</strong>
+                        </div>
+                        <div class="bmi-item @(Model.BMI >= 30 ? "active-bmi bmi-danger" : "")">
+                            <span>30+</span>
+                            <strong>Obese</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .tdee-dark-result {
+        color: #fff;
+    }
+
+    .hero-result-card {
+        background: linear-gradient(135deg, #2f5cff, #6b3bff);
+        border-radius: 24px;
+        padding: 40px 28px;
+        text-align: center;
+        box-shadow: 0 14px 40px rgba(36, 63, 255, 0.25);
+    }
+
+    .hero-overline {
+        font-size: 12px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: .8;
+    }
+
+    .hero-title {
+        font-size: 30px;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .hero-number {
+        font-size: 68px;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .hero-subtitle {
+        font-size: 17px;
+        opacity: .9;
+        margin-top: 8px;
+    }
+
+    .hero-weekly {
+        font-size: 18px;
+        margin-top: 8px;
+        opacity: .95;
+    }
+
+    .hero-mini-card {
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: 16px;
+        padding: 18px;
+        text-align: center;
+    }
+
+    .mini-label {
+        display: block;
+        font-size: 13px;
+        color: rgba(255,255,255,.75);
+        margin-bottom: 6px;
+    }
+
+    .mini-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #fff;
+    }
+
+    .dark-card {
+        background: rgba(20, 20, 61, 0.95);
+        border-radius: 22px;
+        color: #fff;
+    }
+
+    .dark-section-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #fff;
+    }
+
+    .text-primary-custom {
+        color: #7c92ff !important;
+    }
+
+    .text-light-soft {
+        color: #e9ebff;
+    }
+
+    .text-light-muted {
+        color: #b7bce2;
+    }
+
+    .dark-progress {
+        height: 12px;
+        background: #26265b;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .active-progress {
+        background: linear-gradient(135deg, #2f5cff, #6b3bff);
+    }
+
+    .inactive-progress {
+        background: #5a5f8f;
+    }
+
+    .dark-tabs {
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+        .dark-tabs .nav-link {
+            background: #1a1a4a;
+            color: #aaa;
+            border-radius: 12px;
+            border: none;
+            padding: 10px 16px;
+            font-weight: 700;
+        }
+
+            .dark-tabs .nav-link.active {
+                background: linear-gradient(135deg, #2f5cff, #6b3bff);
+                color: white;
+            }
+
+    .plan-header h3 {
+        font-size: 30px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        color: #fff;
+    }
+
+    .plan-header p {
+        color: #a9afd9;
+        margin: 0;
+    }
+
+    .macro-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+
+    .macro-box {
+        background: #1a1a4a;
+        border: 1px solid #2e3270;
+        border-radius: 16px;
+        padding: 18px 14px;
+        text-align: center;
+    }
+
+        .macro-box span {
+            display: block;
+            color: #a9afd9;
+            margin-bottom: 8px;
+        }
+
+        .macro-box strong {
+            font-size: 22px;
+            color: #fff;
+        }
+
+    .ratio-pill {
+        display: inline-block;
+        background: rgba(47, 92, 255, 0.12);
+        border: 1px solid rgba(95, 122, 255, 0.25);
+        color: #9fb0ff;
+        padding: 10px 15px;
+        border-radius: 999px;
+        font-weight: 700;
+    }
+
+    .chart-wrapper {
+        max-width: 320px;
+        margin: 0 auto;
+    }
+
+    .chart-title {
+        color: #a9afd9;
+    }
+
+    .ideal-range {
+        color: #cfd3ff;
+        font-size: 17px;
+        margin-bottom: 18px;
+    }
+
+    .formula-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .formula-item {
+        background: #1a1a4a;
+        border: 1px solid #2e3270;
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #dbe0ff;
+    }
+
+    .bmi-description {
+        color: #c9cdf0;
+        font-size: 16px;
+    }
+
+    .bmi-scale {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .bmi-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #1a1a4a;
+        border: 1px solid #2e3270;
+        border-radius: 14px;
+        padding: 14px 16px;
+        color: #dbe0ff;
+    }
+
+    .active-bmi {
+        background: #ffb74d;
+        color: #000;
+        border-color: transparent;
+    }
+
+    .bmi-good {
+        background: #4caf50;
+        color: #fff;
+    }
+
+    .bmi-warn {
+        background: #ff9800;
+        color: #fff;
+    }
+
+    .bmi-danger {
+        background: #f44336;
+        color: #fff;
+    }
+
+    @@media (max-width: 767.98px) {
+        .hero-title {
+            font-size: 24px;
+        }
+
+        .hero-number {
+            font-size: 48px;
+        }
+
+        .macro-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

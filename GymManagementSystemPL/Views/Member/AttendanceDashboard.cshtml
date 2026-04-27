@@ -1,0 +1,412 @@
+﻿@model IEnumerable<GymManagementSystemBLL.ViewModels.MemberViewModels.AttendanceDashboardItemViewModel>
+
+@{
+    ViewData["Title"] = "Attendance Dashboard";
+
+    var totalMembers = Model.Count();
+    var excellentCount = Model.Count(x => x.AttendanceStatus == "Excellent");
+    var warningCount = Model.Count(x => x.AttendanceStatus == "Warning");
+    var criticalCount = Model.Count(x => x.AttendanceStatus == "Critical");
+    var avgRate = Model.Any() ? Math.Round(Model.Average(x => x.AttendanceRate), 1) : 0;
+}
+
+<div class="attendance-page py-5">
+    <div class="container">
+
+        <div class="dashboard-header text-center mb-5 fade-up">
+            <p class="dashboard-overline">GYM INSIGHTS</p>
+            <h1 class="dashboard-title">Attendance Dashboard</h1>
+            <p class="dashboard-subtitle">Track member commitment & performance</p>
+        </div>
+
+        <!-- Summary -->
+        <div class="row g-4 mb-5">
+
+            <div class="col-md-3">
+                <div class="summary-card glow fade-up">
+                    <div class="summary-icon"><i class="bi bi-people-fill"></i></div>
+                    <div class="summary-label">Members</div>
+                    <div class="summary-value">@totalMembers</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="summary-card glow success fade-up delay-1">
+                    <div class="summary-icon success"><i class="bi bi-stars"></i></div>
+                    <div class="summary-label">Excellent</div>
+                    <div class="summary-value">@excellentCount</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="summary-card glow warning fade-up delay-2">
+                    <div class="summary-icon warning"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                    <div class="summary-label">Warning</div>
+                    <div class="summary-value">@warningCount</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="summary-card glow danger fade-up delay-3">
+                    <div class="summary-icon danger"><i class="bi bi-heart-pulse-fill"></i></div>
+                    <div class="summary-label">Avg Rate</div>
+                    <div class="summary-value">@avgRate%</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Table -->
+        <div class="attendance-card fade-up delay-2">
+
+            <div class="p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h3 class="section-title">Members Overview</h3>
+                    <p class="section-subtitle">Monitor performance & risks</p>
+                </div>
+
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input id="searchInput" type="text" placeholder="Search..." />
+                </div>
+            </div>
+
+            <div class="table-responsive px-4 pb-4">
+                <table class="attendance-table w-100" id="table">
+
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Total</th>
+                            <th>Attended</th>
+                            <th>Absent</th>
+                            <th>Rate</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            var statusClass = item.AttendanceStatus switch
+                            {
+                                "Excellent" => "status-excellent",
+                                "Good" => "status-good",
+                                "Warning" => "status-warning",
+                                _ => "status-critical"
+                            };
+
+                            var progressClass = item.AttendanceRate switch
+                            {
+                                >= 90 => "progress-excellent",
+                                >= 70 => "progress-good",
+                                >= 50 => "progress-warning",
+                                _ => "progress-critical"
+                            };
+
+                            <tr class="attendance-row">
+
+                                <td>
+                                    <div class="member-cell">
+                                        <img src="~/images/members/@item.Photo" class="member-avatar" />
+                                        <div>
+                                            <div class="member-name">@item.MemberName</div>
+                                            <div class="member-id">ID: @item.MemberId</div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="table-number">@item.TotalBookings</td>
+                                <td class="table-number success-text">@item.AttendedSessions</td>
+                                <td class="table-number danger-text">@item.AbsentSessions</td>
+
+                                <td class="rate-cell">
+                                    <div class="rate-text">@item.AttendanceRate%</div>
+                                    <div class="mini-progress">
+                                        <div class="mini-progress-bar @progressClass"
+                                             style="width:@item.AttendanceRate%">
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="status-badge @statusClass">
+                                        @item.AttendanceStatus
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <a asp-controller="Member"
+                                       asp-action="MemberDetails"
+                                       asp-route-id="@item.MemberId"
+                                       class="action-btn">
+                                        View
+                                    </a>
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("searchInput").addEventListener("keyup", function () {
+            let value = this.value.toLowerCase();
+            let rows = document.querySelectorAll("#table tbody tr");
+
+            rows.forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
+            });
+        });
+    </script>
+}
+
+<style>
+    /* ===== Page ===== */
+    .attendance-page {
+        background: linear-gradient(135deg,#0a0a2a,#12124a);
+        min-height: 100vh;
+        color: #ffffff;
+    }
+
+    /* ===== Header ===== */
+    .dashboard-title {
+        color: #ffffff;
+        font-weight: 900;
+    }
+
+    .dashboard-subtitle {
+        color: #c9ccff;
+    }
+
+    /* ===== Cards ===== */
+    .summary-card {
+        background: rgba(20,20,61,0.95);
+        border-radius: 18px;
+        padding: 22px;
+        color: #fff;
+        transition: .3s;
+    }
+
+        .summary-card:hover {
+            box-shadow: 0 0 25px rgba(75,110,255,.4);
+            transform: translateY(-4px);
+        }
+
+    .summary-label {
+        color: #bfc5ff;
+    }
+
+    .summary-value {
+        color: #fff;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    /* ===== Section ===== */
+    .section-title {
+        color: #ffffff !important;
+        font-weight: 800;
+    }
+
+    .section-subtitle {
+        color: #c9ccff !important;
+    }
+
+    /* ===== Search ===== */
+    .search-box input {
+        background: #1f224f;
+        color: white;
+        border: 1px solid #4a6bff;
+        padding: 8px 12px;
+        border-radius: 10px;
+    }
+
+        .search-box input::placeholder {
+            color: #aaa;
+        }
+
+    /* ===== Table ===== */
+    .attendance-table {
+        width: 100%;
+        background: rgba(255,255,255,0.04);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+        /* Table Header */
+        .attendance-table thead {
+            background: rgba(255,255,255,0.08);
+        }
+
+            .attendance-table thead th {
+                color: #aeb5ff !important;
+                font-weight: 700;
+                padding: 16px;
+            }
+
+    /* Rows */
+    .attendance-row td {
+        padding: 16px;
+        color: #ffffff !important;
+        background: rgba(255,255,255,0.06);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* Hover */
+    .attendance-row:hover td {
+        background: rgba(255,255,255,0.12);
+    }
+
+    /* ===== Member ===== */
+    .member-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .member-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
+
+    .member-name {
+        color: #ffffff !important;
+        font-weight: bold;
+    }
+
+    .member-id {
+        color: #8a90c9;
+        font-size: 12px;
+    }
+
+    /* ===== Numbers ===== */
+    .table-number {
+        color: #ffffff !important;
+        font-weight: bold;
+    }
+
+    .success-text {
+        color: #2de09a !important;
+    }
+
+    .danger-text {
+        color: #ff7b7b !important;
+    }
+
+    /* ===== Rate ===== */
+    .rate-text {
+        color: #ffffff !important;
+        font-weight: bold;
+    }
+
+    .mini-progress {
+        height: 8px;
+        background: #25285f;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .mini-progress-bar {
+        height: 100%;
+        transition: width .6s ease;
+    }
+
+    /* Progress Colors */
+    .progress-excellent {
+        background: #19c37d;
+    }
+
+    .progress-good {
+        background: #4a6bff;
+    }
+
+    .progress-warning {
+        background: #ffb020;
+    }
+
+    .progress-critical {
+        background: #ff5d5d;
+    }
+
+    /* ===== Status ===== */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+    }
+
+    .status-excellent {
+        color: #2de09a;
+    }
+
+    .status-good {
+        color: #90a7ff;
+    }
+
+    .status-warning {
+        color: #ffbf4d;
+    }
+
+    .status-critical {
+        color: #ff7b7b;
+    }
+
+    /* ===== Button ===== */
+    .action-btn {
+        background: linear-gradient(135deg,#2f5cff,#6b3bff);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 10px;
+        border: none;
+        transition: .3s;
+    }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(75,110,255,.5);
+        }
+
+    /* ===== Animation ===== */
+    .fade-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp .6s ease forwards;
+    }
+
+    .delay-1 {
+        animation-delay: .1s;
+    }
+
+    .delay-2 {
+        animation-delay: .2s;
+    }
+
+    .delay-3 {
+        animation-delay: .3s;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
