@@ -66,30 +66,6 @@ The system helps gym administrators manage members, trainers, sessions, membersh
 
 ---
 
-## 📸 Screenshots
-
-### Dashboard
-
-![Dashboard](screenshots/dashboard.png)
-
-### Members
-
-![Members](screenshots/members.png)
-
-### TDEE Calculator
-
-![TDEE](screenshots/tdee.png)
-
-### Results
-
-![Results](screenshots/results.png)
-
-### Sessions
-
-![Sessions](screenshots/sessions.png)
-
----
-
 ## 🏗️ Project Architecture
 
 ```
