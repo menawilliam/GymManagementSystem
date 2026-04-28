@@ -1,52 +1,73 @@
 # 💪 Gym Management System
 
-A full-stack Gym Management System built with ASP.NET Core MVC.
-The system helps gym administrators manage members, trainers, sessions, memberships, attendance, and body statistics in a clean and organized way.
+> A full-stack gym management platform built with **ASP.NET Core MVC** using **Clean Architecture**, designed to simulate a real-world production system.
 
 ---
 
-## 🚀 Features
+## 🎯 Overview
+
+This project provides a complete solution for managing gym operations including members, sessions, bookings, attendance tracking, and advanced body analytics.
+
+It focuses on:
+
+* Clean architecture principles
+* Scalable and maintainable code
+* Real-world business logic
+
+---
+
+## 🚀 Key Features
 
 ### 👤 Member Management
 
-* Add, update, delete, and view members
-* Upload profile photos
-* Track body statistics history
+* Full CRUD operations
+* Profile photo upload
+* Body statistics tracking
 
-### 🏋️ Membership Management
+### 🏋️ Membership System
 
 * Assign plans to members
-* Prevent duplicate memberships
-* Track active subscriptions
+* Prevent duplicate active memberships
+* Track subscription status
 
-### 📅 Session Management
+### 📅 Sessions & Booking
 
 * Create and manage training sessions
-* Assign trainers and session categories
-* Track capacity and availability
-
-### 📌 Booking System
-
-* Book members into sessions
-* Prevent overbooking
-* Cancel bookings before session start
+* Capacity & availability control
+* Booking & cancellation system
 
 ### 📊 Attendance Dashboard
 
-* Track attendance rates
-* Visual indicators (Excellent / Warning / Critical)
-* Summary cards and analytics
+* Real-time attendance tracking
+* Performance classification:
+
+  * Excellent
+  * Good
+  * Warning
+  * Critical
+* Visual analytics & indicators
 
 ### 🔥 TDEE & Body Stats Calculator
 
-* Calculate BMR, BMI, and TDEE
-* Generate cutting / bulking plans
-* Macro breakdown (Protein / Fats / Carbs)
-* Progress tracking with charts
+* BMR, BMI, and TDEE calculations
+* Cutting / Bulking plans
+* Macro distribution
+* Progress charts using Chart.js
 
 ---
 
-## 🛠️ Technologies Used
+## ⚡ Highlights
+
+* Clean Architecture (DAL / BLL / PL)
+* Separation of concerns
+* Scalable project structure
+* Real-world business logic implementation
+* Interactive dashboards
+* Data visualization with charts
+
+---
+
+## 🛠️ Tech Stack
 
 ### Backend
 
@@ -55,20 +76,21 @@ The system helps gym administrators manage members, trainers, sessions, membersh
 * SQL Server
 * ASP.NET Identity
 * Repository Pattern
-* Unit of Work
+* Unit of Work Pattern
+* AutoMapper
 
 ### Frontend
 
-* HTML, CSS, JavaScript
+* HTML / CSS / JavaScript
 * Bootstrap
-* Chart.js
 * Font Awesome
+* Chart.js
 
 ---
 
-## 🏗️ Project Architecture
+## 🏗️ Architecture
 
-```
+```text
 GymManagementSystem
 │
 ├── GymManagementSystemPL   → Presentation Layer (UI)
@@ -90,14 +112,22 @@ git clone https://github.com/menawilliam/GymManagementSystem.git
 
 3. Update connection string in:
 
-```
+```bash
 appsettings.json
 ```
 
-4. Apply migrations:
+4. Apply database migrations:
+
+### Visual Studio
+
+```powershell
+Update-Database
+```
+
+### .NET CLI
 
 ```bash
-Update-Database
+dotnet ef database update
 ```
 
 5. Run the project:
@@ -110,10 +140,17 @@ dotnet run
 
 ## 🔑 Demo Account
 
-Use the following credentials to test the system:
+Use the following credentials to explore the system:
 
 Email: [menawilliam9417@gmail.com](mailto:menawilliam9417@gmail.com)
 Password: P@ssw0rd!
+
+---
+
+## 🎥 Demo
+
+> (Optional) Add a video demo here
+> Example: https://your-demo-link.com
 
 ---
 
@@ -122,10 +159,16 @@ Password: P@ssw0rd!
 * Role-based dashboards (Admin / Trainer)
 * Notifications system
 * Payment integration
-* Mobile app version
+* Mobile application version
 
 ---
 
 ## 👨‍💻 Author
 
-Mena William
+**Mena William**
+
+---
+
+## ⭐ Support
+
+If you like this project, consider giving it a ⭐ on GitHub!
