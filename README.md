@@ -1,6 +1,6 @@
 # 🏋️ Gym Management System
 
-> A full-featured Gym Management System built with ASP.NET MVC using clean architecture and modern UI/UX principles.
+> A scalable and production-ready Gym Management System built with ASP.NET MVC using clean architecture principles.
 
 ---
 
@@ -70,18 +70,6 @@ https://drive.google.com/file/d/1sL3l57CcJuwfqYg6las03kJeD7gRUv9Y/view?usp=shari
 - Prevent multiple active memberships
 
 ---
-
-## 🛠️ Tech Stack
-
-- ASP.NET MVC
-- Entity Framework Core
-- SQL Server
-- AutoMapper
-- Bootstrap
-- Chart.js
-
----
-
 ## 🧱 Architecture
 
 The project follows a layered architecture:
@@ -97,12 +85,44 @@ The project follows a layered architecture:
 
 ---
 
+## 💡 Business Logic Highlights
+
+- Prevent deleting members with upcoming sessions  
+- Prevent booking without active membership  
+- Prevent overbooking sessions  
+- Automatic membership expiration  
+- Dynamic calorie calculations based on user data  
+
+---
+
+## 🛠️ Tech Stack
+
+- ASP.NET MVC
+- Entity Framework Core
+- SQL Server
+- AutoMapper
+- Bootstrap
+- Chart.js
+- LINQ
+- Repository Pattern
+- Unit of Work Pattern
+- ASP.NET Identity
+
+---
+
 ## ⚙️ Requirements
 
-- Visual Studio 2026
+- Visual Studio 2022 or later
 - .NET 9 SDK
 - SQL Server
-- SSMS (SQL Server Management Studio)
+- SQL Server Management Studio (SSMS)
+
+---
+
+## 🔐 Demo Access
+
+- You can register a new account directly from the application  
+- Or request demo credentials from the developer  
 
 ---
 
